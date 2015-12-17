@@ -1,61 +1,40 @@
-﻿<Window x:Class="Microsoft.Samples.Kinect.InfraredBasics.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Infrared Basics" 
-        Height="600" Width="700"  
-        Closing="MainWindow_Closing"> 
-  <Window.Resources>
-    <SolidColorBrush x:Key="MediumGreyBrush" Color="#ff6e6e6e" />
-    <SolidColorBrush x:Key="KinectPurpleBrush" Color="#ff52318f" />
-    <SolidColorBrush x:Key="KinectBlueBrush" Color="#ff00BCF2" />
-    <Style TargetType="{x:Type Image}">
-      <Setter Property="SnapsToDevicePixels" Value="True" />
-    </Style>
-    <Style TargetType="{x:Type Button}" x:Key="ScreenshotButton" >
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="{x:Type Button}">
-            <Grid>
-              <StackPanel Orientation="Horizontal" Background="Transparent">
-                <TextBlock x:Name="ScreenshotText" Text="{TemplateBinding Content}" TextAlignment="Left"  VerticalAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="15" />
-                <Grid Margin="9,0,0,0">
-                  <Image x:Name="ScreenshotNormal" Source="Images\ScreenshotNormal.png" Stretch="None" HorizontalAlignment="Center" />
-                  <Image x:Name="ScreenshotHover" Source="Images\ScreenshotHover.png" Stretch="None" HorizontalAlignment="Center" Visibility="Collapsed" />
-                </Grid>
-              </StackPanel>
-            </Grid>
-            <ControlTemplate.Triggers>
-              <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Visibility" Value="Collapsed" TargetName="ScreenshotNormal" />
-                <Setter Property="Visibility" Value="Visible" TargetName="ScreenshotHover" />
-                <Setter Property="Foreground" Value="{StaticResource KinectBlueBrush}" TargetName="ScreenshotText" />
-              </Trigger>
-            </ControlTemplate.Triggers>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-    </Style>
-  </Window.Resources>
-  <Grid Margin="10 0 10 0">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-    </Grid.RowDefinitions>
-      
-    <Image Grid.Row="0" Source="Images\Logo.png" HorizontalAlignment="Left" Stretch="Fill" Height="32" Width="81" Margin="0 10 0 5" />
-    <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="18">Infrared Basics</TextBlock>
-    <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
+        x:Class="Microsoft.Samples.Kinect.InfraredBasics.MainWindow"
+        Title="Depth Basics" 
+        Height="672" Width="1144" 
+        Closing="MainWindow_Closing">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="295*"/>
+            <ColumnDefinition Width="841*"/>
+        </Grid.ColumnDefinitions>
 
-    <Viewbox Grid.Row="1" HorizontalAlignment="Center">
-      <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
-    </Viewbox>
-    
-    <Button Grid.Row="2" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
-    
-    <StatusBar Grid.Row="3" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}">
-      <StatusBarItem Content="{Binding StatusText}" />
-    </StatusBar>
-  </Grid>
+        <Viewbox HorizontalAlignment="Left" Height="424" Margin="20,20,0,0" VerticalAlignment="Top" Width="512" x:Name="Viewbox1" Grid.ColumnSpan="2">
+            <Image Source="{Binding ImageSource}" Stretch="UniformToFill"/>
+        </Viewbox>
+        <StatusBar HorizontalAlignment="Left" Height="25" Margin="20,470,0,0" VerticalAlignment="Top" Width="605" Grid.ColumnSpan="2">
+            <StatusBarItem Content="{Binding StatusText}" Width="600"/>
+        </StatusBar>
+
+        <CheckBox Content="LockCenter" Grid.Column="1" HorizontalAlignment="Left" Height="21" Margin="336,20,0,0" VerticalAlignment="Top" Width="194" Name="CheckLockCenter" IsChecked="False" Checked="CheckLockCenter_Checked" Unchecked="CheckLockCenter_Unchecked"/>
+        <TextBox Grid.Column="1" HorizontalAlignment="Left" Height="29" Margin="437,61,0,0" TextWrapping="Wrap" Text="256" VerticalAlignment="Top" Width="93" Name="textXlock"/>
+        <TextBox Grid.Column="1" HorizontalAlignment="Left" Height="29" Margin="437,110,0,0" TextWrapping="Wrap" Text="212" VerticalAlignment="Top" Width="93" Name="textYlock"/>
+        <Label Content="X" Grid.Column="1" HorizontalAlignment="Left" Height="29" Margin="336,61,0,0" VerticalAlignment="Top" Width="81"/>
+        <Label Content="Y" Grid.Column="1" HorizontalAlignment="Left" Height="35" Margin="336,110,0,0" VerticalAlignment="Top" Width="81"/>
+        <CheckBox Content="NonTimeStamp" Grid.Column="1" HorizontalAlignment="Left" Height="57" Margin="613,61,0,0" VerticalAlignment="Top" Width="130" Name="CheckNonTimeStamp" IsChecked="False" Checked="CheckNonTimeStamp_Checked" Unchecked="CheckNonTimeStamp_Unchecked"/>
+        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="296" Grid.Column="1" Margin="535,100,0,0" Height="71" Name="ButtonWriteDown" Click="ButtonWriteDown_Click" FontSize="50" />
+
+
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="58" Margin="385,274,0,0" VerticalAlignment="Top" Width="145" Name="Label0"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="58" Margin="549,274,0,0" VerticalAlignment="Top" Width="131" Name="Label1"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="58" Margin="704,274,0,0" VerticalAlignment="Top" Width="112" Name="Label2"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="60" Margin="385,355,0,0" VerticalAlignment="Top" Width="125" Name="Label3"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="60" Margin="549,355,0,0" VerticalAlignment="Top" Width="111" Name="Label4"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="60" Margin="704,355,0,0" VerticalAlignment="Top" Width="112" Name="Label5"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="61" Margin="385,444,0,0" VerticalAlignment="Top" Width="125" Name="Label6"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="61" Margin="549,444,0,0" VerticalAlignment="Top" Width="111" Name="Label7"/>
+        <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="61" Margin="704,444,0,0" VerticalAlignment="Top" Width="112" Name="Label8"/>
+    </Grid>
 </Window>
