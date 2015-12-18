@@ -4,6 +4,7 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+
 namespace Microsoft.Samples.Kinect.InfraredBasics
 {
     using System;
@@ -64,11 +65,41 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// Bitmap to display
         /// </summary>
         private WriteableBitmap infraredBitmap = null;
+        
+        
+        
+        private DepthFrameReader depthFrameReader = null;
+
+        /// <summary> merge sareru?s
+        /// Description of the data contained in the depth frame
+        /// </summary>
+        private FrameDescription depthFrameDescription = null;
+
+        /// <summary>
+        /// Bitmap to display
+        /// </summary>
+        private WriteableBitmap depthBitmap = null;
+
+        /// <summary>
+        /// Intermediate storage for frame data converted to color
+        /// </summary>
+        private byte[] depthPixels = null;
 
         /// <summary>
         /// Current status text to display
         /// </summary>
         private string statusText = null;
+
+        /// <summary>
+        /// Initializes a new instance of the MainWindow class.
+        /// </summary>
+        /// 
+
+
+
+        /// <summary>
+        /// Current status text to display
+        /// </summary>
         private int RECORD_SIZE = 10;
         private int counter = 0;
         private int writeDownedCounter = 0;
@@ -86,7 +117,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private ushort[] old_fukuisan = new ushort[1];
         private DateTime timestamp = new DateTime();
         private System.Windows.Controls.Label[] ValueLabels;
-
+        private const int MapDepthToByte = 8000 / 256;
+        private bool mapIsIR = true;
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -110,6 +142,23 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             // set IsAvailableChanged event notifier
             this.kinectSensor.IsAvailableChanged += this.Sensor_IsAvailableChanged;
 
+            this.DataContext = this;
+
+            this.depthFrameReader = this.kinectSensor.DepthFrameSource.OpenReader();
+
+            // wire handler for frame arrival
+            this.depthFrameReader.FrameArrived += this.Reader_FrameArrived;
+
+            // get FrameDescription from DepthFrameSource
+            this.depthFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
+
+            // allocate space to put the pixels being received and converted
+            this.depthPixels = new byte[this.depthFrameDescription.Width * this.depthFrameDescription.Height];
+
+            // create the bitmap to display
+            this.depthBitmap = new WriteableBitmap(this.depthFrameDescription.Width, this.depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
+
+
             // open the sensor
             this.kinectSensor.Open();
 
@@ -118,7 +167,6 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                                                             : Properties.Resources.NoSensorStatusText;
 
             // use the window object as the view model in this simple example
-            this.DataContext = this;
 
             // initialize the components (controls) of the window
             this.InitializeComponent();
@@ -135,6 +183,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.ValueLabels[6] = this.Label6;
             this.ValueLabels[7] = this.Label7;
             this.ValueLabels[8] = this.Label8;
+            
+
         }
 
         /// <summary>
@@ -145,13 +195,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Gets the bitmap to display
         /// </summary>
-        public ImageSource ImageSource
-        {
-            get
-            {
-                return this.infraredBitmap;
-            }
-        }
+        
 
         /// <summary>
         /// Gets or sets the current status text to display
@@ -229,6 +273,72 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             }
         }
 
+        private void Reader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
+        {
+            bool depthFrameProcessed = false;
+
+            using (DepthFrame depthFrame = e.FrameReference.AcquireFrame()) //こいつを調べる
+            {
+                if (depthFrame != null)
+                {
+                    // the fastest way to process the body index data is to directly access 
+                    // the underlying buffer
+                    using (Microsoft.Kinect.KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
+                    {
+                        // verify data and write the color data to the display bitmap
+                        if (((this.depthFrameDescription.Width * this.depthFrameDescription.Height) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel)) &&
+                            (this.depthFrameDescription.Width == this.depthBitmap.PixelWidth) && (this.depthFrameDescription.Height == this.depthBitmap.PixelHeight))
+                        {
+                            // Note: In order to see the full range of depth (including the less reliable far field depth)
+                            // we are setting maxDepth to the extreme potential depth threshold
+                            ushort maxDepth = ushort.MaxValue; // ushort.MaxValue is 65535
+
+                            // If you wish to filter by reliable depth distance, uncomment the following line:
+                            //// maxDepth = depthFrame.DepthMaxReliableDistance
+
+                            this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
+                            depthFrameProcessed = true;
+                        }
+                    }
+                }
+            }
+
+            if (depthFrameProcessed)
+            {
+                this.RenderDepthPixels();
+            }
+        }
+
+        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
+        {
+
+            // depth frame data is a 16 bit value
+            ushort* frameData = (ushort*)depthFrameData;
+            TextGenerate(frameData);
+
+            // convert depth to a visual representation
+            for (int i = 0; i < (int)(depthFrameDataSize / this.depthFrameDescription.BytesPerPixel); ++i)
+            {
+                // Get the depth for this pixel
+                ushort depth = frameData[i];
+
+                // To convert to a byte, we're mapping the depth value to the byte range.
+                // Values outside the reliable depth range are mapped to 0 (black).
+                this.depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
+            }
+        }
+
+        /// <summary>
+        /// Renders color pixels into the writeableBitmap.
+        /// </summary>
+        private void RenderDepthPixels()
+        {
+            this.depthBitmap.WritePixels(
+                new Int32Rect(0, 0, this.depthBitmap.PixelWidth, this.depthBitmap.PixelHeight),
+                this.depthPixels,
+                this.depthBitmap.PixelWidth,
+                0);
+        }
         /// <summary>
         /// Directly accesses the underlying image buffer of the InfraredFrame to 
         /// create a displayable bitmap.
@@ -326,13 +436,17 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             string StartedTime = makeTimestampFilename(timestamp);
             string filenamePartialIR = System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IR.dat");
+            this.filenameLabel.Content = filenamePartialIR;
             string filenameCenterIR = System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IRcenter.dat");
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, true, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, true, System.Text.Encoding.GetEncoding("shift_jis"));
+            
+            
             if (!TimeStampFrag && IsTimestampNeeded)
             {
                 writingSwIR.Write("\nwriting start\n" + timestamp.ToString() + "\r\n"); //time stamp writelinedeyokune?
                 writingCenterIR.Write("\nwriting start\n" + timestamp.ToString() + "\r\n"); //time stamp
+                TimeStampFrag = true;
             }
             for (int i = 0; i < fukuisan.Length; i++)
             {
@@ -346,8 +460,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             if (IsTimestampNeeded)
             {
                 DateTime dtnow = DateTime.Now;
-                writingSwIR.Write(dtnow.ToString() + "redord ended\r\n");
-                writingCenterIR.Write(dtnow.ToString() + "redord ended\r\n");
+                writingSwIR.Write(dtnow.ToString() + "redord ended");
+                writingCenterIR.Write(dtnow.ToString() + "redord ended");
             }
             timestamp = DateTime.Now;
             writingSwIR.Close();
@@ -450,8 +564,6 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             int index_value = 0;
             double pointX;
             double pointY;
-
-            TimeStampFrag = true;
             for (int i = 0; i < horizonalLength * 2 + 1; i++)
             {
 
@@ -508,6 +620,21 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             mikachan = mikachan.Replace(@":", "");
             mikachan = mikachan.Replace(" ", "");
             return mikachan;
+        }
+
+        private void ChangeData_Click(object sender, RoutedEventArgs e)
+        {
+            if (mapIsIR)
+            {
+                this.ChangeData.Content = "ToInfraRed";
+                this.Picture.Source = depthBitmap;
+            }
+            else
+            {
+                this.ChangeData.Content = "ToDepth";
+                this.Picture.Source = infraredBitmap;
+            }
+            mapIsIR = !mapIsIR;
         }
     }
 }

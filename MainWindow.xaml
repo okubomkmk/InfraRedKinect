@@ -11,9 +11,6 @@
             <ColumnDefinition Width="841*"/>
         </Grid.ColumnDefinitions>
 
-        <Viewbox HorizontalAlignment="Left" Height="424" Margin="20,20,0,0" VerticalAlignment="Top" Width="512" x:Name="Viewbox1" Grid.ColumnSpan="2">
-            <Image Source="{Binding ImageSource}" Stretch="UniformToFill"/>
-        </Viewbox>
         <StatusBar HorizontalAlignment="Left" Height="25" Margin="20,470,0,0" VerticalAlignment="Top" Width="605" Grid.ColumnSpan="2">
             <StatusBarItem Content="{Binding StatusText}" Width="600"/>
         </StatusBar>
@@ -24,7 +21,7 @@
         <Label Content="X" Grid.Column="1" HorizontalAlignment="Left" Height="29" Margin="336,61,0,0" VerticalAlignment="Top" Width="81"/>
         <Label Content="Y" Grid.Column="1" HorizontalAlignment="Left" Height="35" Margin="336,110,0,0" VerticalAlignment="Top" Width="81"/>
         <CheckBox Content="NonTimeStamp" Grid.Column="1" HorizontalAlignment="Left" Height="57" Margin="613,61,0,0" VerticalAlignment="Top" Width="130" Name="CheckNonTimeStamp" IsChecked="False" Checked="CheckNonTimeStamp_Checked" Unchecked="CheckNonTimeStamp_Unchecked"/>
-        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="296" Grid.Column="1" Margin="535,100,0,0" Height="71" Name="ButtonWriteDown" Click="ButtonWriteDown_Click" FontSize="50" />
+        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="296" Grid.Column="1" Margin="447,541,0,0" Height="71" Name="ButtonWriteDown" Click="ButtonWriteDown_Click" FontSize="50" />
 
 
         <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="58" Margin="385,274,0,0" VerticalAlignment="Top" Width="145" Name="Label0"/>
@@ -36,5 +33,9 @@
         <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="61" Margin="385,444,0,0" VerticalAlignment="Top" Width="125" Name="Label6"/>
         <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="61" Margin="549,444,0,0" VerticalAlignment="Top" Width="111" Name="Label7"/>
         <Label Content="Label" Grid.Column="1" HorizontalAlignment="Left" Height="61" Margin="704,444,0,0" VerticalAlignment="Top" Width="112" Name="Label8"/>
+        <Label Content="filename" Grid.Column="1" HorizontalAlignment="Left" Height="45" Margin="336,183,0,0" VerticalAlignment="Top" Width="442" Name="filenameLabel"/>
+        <Button Content="ChangeToDepth" Grid.Column="1" HorizontalAlignment="Left" Height="27" Margin="567,151,0,0" VerticalAlignment="Top" Width="202" Name="ChangeData" Click="ChangeData_Click"/>
+        
+        <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="424" Margin="43,29,0,0" VerticalAlignment="Top" Width="512" Name="Picture"/>
     </Grid>
 </Window>
