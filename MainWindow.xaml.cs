@@ -314,7 +314,10 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
             // depth frame data is a 16 bit value
             ushort* frameData = (ushort*)depthFrameData;
-            TextGenerate(frameData);
+            if (!mapIsIR)
+            {
+                TextGenerate(frameData);
+            }
 
             // convert depth to a visual representation
             for (int i = 0; i < (int)(depthFrameDataSize / this.depthFrameDescription.BytesPerPixel); ++i)
@@ -351,7 +354,10 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             // infrared frame data is a 16 bit value
             ushort* frameData = (ushort*)infraredFrameData;
-            TextGenerate(frameData);
+            if (mapIsIR)
+            {
+                TextGenerate(frameData);
+            }
 
             // lock the target bitmap
             this.infraredBitmap.Lock();
