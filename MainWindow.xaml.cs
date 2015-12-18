@@ -112,9 +112,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool IsTimestampNeeded = true;
         private bool WritingFlag = false;
         private bool ArrayResized = false;
+        private bool FileNameStableFlag = false;
         private int WaitForStartingRecord = 1;
-        private ushort[] fukuisan = new ushort[1];
-        private ushort[] old_fukuisan = new ushort[1];
+        private ushort[] measureDepthArray = new ushort[1];
+        private ushort[] centerDepthArray = new ushort[1];
+        private ushort[] measureIrArray = new ushort[1];
+        private ushort[] centerIrArray = new ushort[1];
         private DateTime timestamp = new DateTime();
         private System.Windows.Controls.Label[] ValueLabels;
         private const int MapDepthToByte = 8000 / 256;
@@ -183,6 +186,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.ValueLabels[6] = this.Label6;
             this.ValueLabels[7] = this.Label7;
             this.ValueLabels[8] = this.Label8;
+            this.Picture.Source = depthBitmap;
             
 
         }
@@ -400,7 +404,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 if (WritingFlag)
                 {
-                    writeToArrayHorizontalPixels(ProcessData, getLockPosition());
+                    writeToArrayRectangle(ProcessData, getLockPosition());
                 }
 
                 else
@@ -438,14 +442,14 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         }
 
 
-        private void writeToText()
+        private unsafe void writeToText(ushort[] measureArray, ushort[] centerArray, string type)
         {
             string StartedTime = makeTimestampFilename(timestamp);
-            string filenamePartialIR = System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IR.dat");
+            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\hogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
             this.filenameLabel.Content = filenamePartialIR;
-            string filenameCenterIR = System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IRcenter.dat");
-            System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, true, System.Text.Encoding.GetEncoding("shift_jis"));
-            System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, true, System.Text.Encoding.GetEncoding("shift_jis"));
+            string filenameCenterIR = FileNameStableFlag ?  System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\centerhogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IRcenter.dat");
+            System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
+            System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             
             
             if (!TimeStampFrag && IsTimestampNeeded)
@@ -454,13 +458,13 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 writingCenterIR.Write("\nwriting start\n" + timestamp.ToString() + "\r\n"); //time stamp
                 TimeStampFrag = true;
             }
-            for (int i = 0; i < fukuisan.Length; i++)
+            for (int i = 0; i < measureArray.Length; i++)
             {
-                writingSwIR.Write(fukuisan[i] + "\r\n");
+                writingSwIR.Write(measureArray[i] + "\r\n");
             }
-            for (int j = 0; j < old_fukuisan.Length; j++ )
+            for (int j = 0; j < centerArray.Length; j++ )
             {
-                writingCenterIR.Write(old_fukuisan[j].ToString() + "\r\n");
+                writingCenterIR.Write(centerArray[j].ToString() + "\r\n");
             }
             
             if (IsTimestampNeeded)
@@ -556,7 +560,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             cursol_locked = false;
             this.ButtonWriteDown.IsEnabled = false;
         }
-
+        /*
         private unsafe void writeToArrayHorizontalPixels(ushort* ProcessData, Point location)
         {
             int horizonalLength = 3; //記録する長さ　片側
@@ -564,9 +568,10 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 
             if (!ArrayResized)
             {
-                Array.Resize(ref fukuisan, RECORD_SIZE * (2 * horizonalLength + 1));
-                Array.Resize(ref old_fukuisan, RECORD_SIZE);
+                Array.Resize(ref measureDepthArray, RECORD_SIZE * (2 * horizonalLength + 1));
+                Array.Resize(ref centerDepthArray, RECORD_SIZE);
             }
+            ArrayResized = true;
             int index_value = 0;
             double pointX;
             double pointY;
@@ -576,49 +581,54 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 index_value = i;
                 pointX = location.X + (index_value - horizonalLength) * pixelMargin;
                 pointY = location.Y;
-                fukuisan[index_value + writeDownedCounter * (horizonalLength * 2 + 1)] = shiburinkawaiiyoo(ProcessData, pointX, pointY);
+                measureDepthArray[index_value + writeDownedCounter * (horizonalLength * 2 + 1)] = shiburinkawaiiyoo(ProcessData, pointX, pointY);
 
             }
-            old_fukuisan[writeDownedCounter] = shiburinkawaiiyoo(ProcessData, location.X, location.Y);
+            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(ProcessData, location.X, location.Y);
 
             writeDownedCounter++;
-            if (writeDownedCounter == fukuisan.Length / 7)
+            if (writeDownedCounter == measureDepthArray.Length / 7)
             {
-                finished();
-            }
+                WritingFlag = false;
+                writeToText(measureDepthArray, centerDepthArray, "Depth");
+                ButtonWriteDown.IsEnabled = true;            }
         }
-
+        */
         private unsafe void writeToArrayRectangle(ushort* ProcessData, Point location)
         {
-            int recordPixelX = 11; //水平方向の記録ピクセル数
-            int recordPixelY = 11; //垂直方向の記録ピクセル数
-            int marginX = 1; // 記録するピクセルの間隔　1=連続
-            int marginY = 1; // 記録するピクセルの間隔　1=連続
+            int recordPixelX = 11; //水平方向の記録ピクセル数 odd
+            int recordPixelY = 11; //垂直方向の記録ピクセル数 odd
+            int marginX = 10; // 記録するピクセルの間隔　1=連続
+            int marginY = 10; // 記録するピクセルの間隔　1=連続
 
-            int index_value = 0;
-            for (int i = 0; i < 3; i++)
+            int x = (int)(recordPixelX / 2);
+            int y = (int)(recordPixelY / 2);
+            if (!ArrayResized)
             {
-                for (int j = 0; j < 3; j++)
+                Array.Resize(ref measureDepthArray, RECORD_SIZE * (recordPixelX * recordPixelY));
+                Array.Resize(ref centerDepthArray, RECORD_SIZE);
+            }
+            ArrayResized = true;
+            int index_value = 0;
+            for (int i = -y ; i <= y ; i++)
+            {
+                for (int j = -x; j <= x; j++)
                 {
-                    index_value = i * 3 + j;
-                    fukuisan[index_value + writeDownedCounter * 9] = shiburinkawaiiyoo(ProcessData, location.X - marginX + j * marginX, location.Y - marginY + i * marginY);
-                    this.ValueLabels[index_value].Content = fukuisan[index_value + writeDownedCounter * 9];
+                    index_value = (i + y) * recordPixelY + (j + x);
+                    measureDepthArray[index_value + writeDownedCounter * recordPixelX * recordPixelY] = shiburinkawaiiyoo(ProcessData, location.X + i * marginX, location.Y + j * marginY);
                 }
             }
-            old_fukuisan[writeDownedCounter] = shiburinkawaiiyoo(ProcessData, location.X, location.Y);
+            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(ProcessData, location.X, location.Y);
 
             writeDownedCounter++;
-            if (writeDownedCounter == fukuisan.Length / 9)
+            if (writeDownedCounter == centerDepthArray.Length)
             {
-                finished();
+                WritingFlag = false;
+                writeToText(measureDepthArray,centerDepthArray,"depth");
+                ButtonWriteDown.IsEnabled = true;
             }
         }
-        private void finished()
-        {
-            WritingFlag = false;
-            writeToText();
-            ButtonWriteDown.IsEnabled = true;
-        }
+
 
         private string makeTimestampFilename(DateTime printTime)
         {
@@ -641,6 +651,20 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 this.Picture.Source = infraredBitmap;
             }
             mapIsIR = !mapIsIR;
+        }
+
+        private void CheckFileNameStable_Checked(object sender, RoutedEventArgs e)
+        {
+            FileNameStableFlag = true;
+            IsTimestampNeeded = false;
+            this.CheckNonTimeStamp.IsEnabled = false;
+        }
+
+        private void CheckFileNameStable_Unchecked(object sender, RoutedEventArgs e)
+        {
+            FileNameStableFlag = false;
+            IsTimestampNeeded = true;
+            this.CheckNonTimeStamp.IsEnabled = true;
         }
     }
 }
