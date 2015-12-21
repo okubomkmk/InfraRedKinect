@@ -114,10 +114,13 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool ArrayResized = false;
         private bool FileNameStableFlag = false;
         private int WaitForStartingRecord = 1;
-        
+        private ushort[] measureDepthArray = new ushort[1];
+        private ushort[] centerDepthArray = new ushort[1];
+        private ushort[] measureIrArray = new ushort[1];
+        private ushort[] centerIrArray = new ushort[1];
 
-        private ushort[] IrBuffer = new ushort[1];
-        private ushort[] DepthBuffer = new ushort[1];
+        private ushort[] IrGlobalArray = new ushort[1];
+        private ushort[] DepthGlobalArray = new ushort[1];
 
         private DateTime timestamp = new DateTime();
         private System.Windows.Controls.Label[] ValueLabels;
@@ -188,8 +191,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.ValueLabels[7] = this.Label7;
             this.ValueLabels[8] = this.Label8;
             this.Picture.Source = depthBitmap;
-           
-
+            Array.Resize(ref IrGlobalArray, this.infraredFrameDescription.Width * this.infraredFrameDescription.Height);
+            Array.Resize(ref DepthGlobalArray, this.depthFrameDescription.Width * this.depthFrameDescription.Height);
         }
 
         /// <summary>
@@ -324,6 +327,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 TextGenerate(frameData);
             }
 
+            for (int i = 0; i < this.depthFrameDescription.Width* this.depthFrameDescription.Height; i++)
+            {
+                DepthGlobalArray[i] = frameData[i];
+            }
+            
             // convert depth to a visual representation
             for (int i = 0; i < (int)(depthFrameDataSize / this.depthFrameDescription.BytesPerPixel); ++i)
             {
@@ -364,8 +372,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 TextGenerate(frameData);
             }
 
-            // lock the target bitmap
-            this.infraredBitmap.Lock();
+            for (int i = 0; i < this.infraredFrameDescription.Width * this.infraredFrameDescription.Height; i++)
+            {
+                IrGlobalArray[i] = frameData[i];
+            }
+                // lock the target bitmap
+                this.infraredBitmap.Lock();
 
             // get the pointer to the bitmap's back buffer
             float* backBuffer = (float*)this.infraredBitmap.BackBuffer;
@@ -398,8 +410,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         }
         private unsafe void TextGenerate(ushort* ProcessData)
         {
-            int VerticalCheckDistance = 15;
-            int HorizontalCheckDistance = 15;
+            int VerticalCheckDistance = 200;
+            int HorizontalCheckDistance = 200;
             Point roop = new Point();
             if (cursol_locked)
             {
@@ -442,13 +454,18 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             return ProcessData[(int)(location.Y * this.infraredFrameDescription.Width + location.X)];
         }
 
+        private unsafe ushort shiburinkawaiiyoo(ushort[] ProcessData, double X, double Y)
+        {
+            return ProcessData[(int)(Y * this.infraredFrameDescription.Width + X)];
+
+        }
 
         private unsafe void writeToText(ushort[] measureArray, ushort[] centerArray, string type)
         {
             string StartedTime = makeTimestampFilename(timestamp);
-            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\hogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
+            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type+"hogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
             this.filenameLabel.Content = filenamePartialIR;
-            string filenameCenterIR = FileNameStableFlag ?  System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\centerhogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IRcenter.dat");
+            string filenameCenterIR = FileNameStableFlag ?  System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type +"centerhogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IRcenter.dat");
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             
@@ -597,15 +614,10 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         */
         private unsafe void writeToArrayRectangle(ushort* ProcessData, Point location)
         {
-            ushort[] measureDepthArray = new ushort[1];
-            ushort[] centerDepthArray = new ushort[1];
-            ushort[] measureIrArray = new ushort[1];
-            ushort[] centerIrArray = new ushort[1];
-            
             int recordPixelX = 11; //水平方向の記録ピクセル数 odd
             int recordPixelY = 11; //垂直方向の記録ピクセル数 odd
-            int marginX = 10; // 記録するピクセルの間隔　1=連続
-            int marginY = 10; // 記録するピクセルの間隔　1=連続
+            int marginX = 20; // 記録するピクセルの間隔　1=連続
+            int marginY = 20; // 記録するピクセルの間隔　1=連続
 
             int x = (int)(recordPixelX / 2);
             int y = (int)(recordPixelY / 2);
@@ -615,7 +627,6 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 Array.Resize(ref centerDepthArray, RECORD_SIZE);
                 Array.Resize(ref measureIrArray, RECORD_SIZE * (recordPixelX * recordPixelY));
                 Array.Resize(ref centerIrArray, RECORD_SIZE);
-
             }
             ArrayResized = true;
             int index_value = 0;
@@ -624,19 +635,20 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 for (int j = -x; j <= x; j++)
                 {
                     index_value = (i + y) * recordPixelY + (j + x);
-                    measureDepthArray[index_value + writeDownedCounter * recordPixelX * recordPixelY] = shiburinkawaiiyoo(ProcessData, location.X + i * marginX, location.Y + j * marginY);
+                    measureDepthArray[index_value + writeDownedCounter * recordPixelX * recordPixelY] = shiburinkawaiiyoo(DepthGlobalArray, location.X + i * marginX, location.Y + j * marginY);
+                    measureIrArray[index_value + writeDownedCounter * recordPixelX * recordPixelY] = shiburinkawaiiyoo(IrGlobalArray, location.X + i * marginX, location.Y + j * marginY);
 
                 }
-
             }
-            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(ProcessData, location.X, location.Y);
+            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(DepthGlobalArray, location.X, location.Y);
+            centerIrArray[writeDownedCounter] = shiburinkawaiiyoo(IrGlobalArray, location.X, location.Y);
 
             writeDownedCounter++;
             if (writeDownedCounter == centerDepthArray.Length)
             {
                 WritingFlag = false;
                 writeToText(measureDepthArray,centerDepthArray,"depth");
-                //writeToText(measureIrArray, centerIrArray, "IR");
+                writeToText(measureIrArray, centerIrArray, "InfraRed");
                 ButtonWriteDown.IsEnabled = true;
             }
         }
