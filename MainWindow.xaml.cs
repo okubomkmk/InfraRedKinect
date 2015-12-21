@@ -319,17 +319,16 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
 
             // depth frame data is a 16 bit value
-            ushort* frameData = (ushort*)depthFrameData;
+            DepthFrameBufferGr = (ushort*)depthFrameData;
             if (!mapIsIR)
             {
-                TextGenerate(frameData);
+                TextGenerate(DepthFrameBufferGr);
             }
-            DepthFrameBufferGr = frameData;
             // convert depth to a visual representation
             for (int i = 0; i < (int)(depthFrameDataSize / this.depthFrameDescription.BytesPerPixel); ++i)
             {
                 // Get the depth for this pixel
-                ushort depth = frameData[i];
+                ushort depth = DepthFrameBufferGr[i];
 
                 // To convert to a byte, we're mapping the depth value to the byte range.
                 // Values outside the reliable depth range are mapped to 0 (black).
@@ -359,12 +358,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private unsafe void ProcessInfraredFrameData(IntPtr infraredFrameData, uint infraredFrameDataSize)
         {
             // infrared frame data is a 16 bit value
-            ushort* frameData = (ushort*)infraredFrameData;
+            IrFrameBufferGr = (ushort*)infraredFrameData;
             if (mapIsIR)
             {
-                TextGenerate(frameData);
+                TextGenerate(IrFrameBufferGr);
             }
-            IrFrameBufferGr = frameData;
 
             // lock the target bitmap
             this.infraredBitmap.Lock();
@@ -377,7 +375,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 // since we are displaying the image as a normalized grey scale image, we need to convert from
                 // the ushort data (as provided by the InfraredFrame) to a value from [InfraredOutputValueMinimum, InfraredOutputValueMaximum]
-                backBuffer[i] = Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
+                backBuffer[i] = Math.Min(InfraredOutputValueMaximum, (((float)IrFrameBufferGr[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
             }
 
             // mark the entire bitmap as needing to be drawn
@@ -634,7 +632,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             if (writeDownedCounter == centerDepthArray.Length)
             {
                 WritingFlag = false;
-                writeToText(measureDepthArray,centerDepthArray,"depth");
+                writeToText(measureIrArray,centerIrArray,"depth");
                 ButtonWriteDown.IsEnabled = true;
             }
         }
