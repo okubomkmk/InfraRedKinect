@@ -114,10 +114,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool ArrayResized = false;
         private bool FileNameStableFlag = false;
         private int WaitForStartingRecord = 1;
-        private ushort[] measureDepthArray = new ushort[1];
-        private ushort[] centerDepthArray = new ushort[1];
-        private ushort[] measureIrArray = new ushort[1];
-        private ushort[] centerIrArray = new ushort[1];
+        
+
+        private ushort[] IrBuffer = new ushort[1];
+        private ushort[] DepthBuffer = new ushort[1];
+
         private DateTime timestamp = new DateTime();
         private System.Windows.Controls.Label[] ValueLabels;
         private const int MapDepthToByte = 8000 / 256;
@@ -187,7 +188,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.ValueLabels[7] = this.Label7;
             this.ValueLabels[8] = this.Label8;
             this.Picture.Source = depthBitmap;
-            
+           
 
         }
 
@@ -596,6 +597,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         */
         private unsafe void writeToArrayRectangle(ushort* ProcessData, Point location)
         {
+            ushort[] measureDepthArray = new ushort[1];
+            ushort[] centerDepthArray = new ushort[1];
+            ushort[] measureIrArray = new ushort[1];
+            ushort[] centerIrArray = new ushort[1];
+            
             int recordPixelX = 11; //水平方向の記録ピクセル数 odd
             int recordPixelY = 11; //垂直方向の記録ピクセル数 odd
             int marginX = 10; // 記録するピクセルの間隔　1=連続
@@ -607,6 +613,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 Array.Resize(ref measureDepthArray, RECORD_SIZE * (recordPixelX * recordPixelY));
                 Array.Resize(ref centerDepthArray, RECORD_SIZE);
+                Array.Resize(ref measureIrArray, RECORD_SIZE * (recordPixelX * recordPixelY));
+                Array.Resize(ref centerIrArray, RECORD_SIZE);
+
             }
             ArrayResized = true;
             int index_value = 0;
@@ -616,7 +625,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 {
                     index_value = (i + y) * recordPixelY + (j + x);
                     measureDepthArray[index_value + writeDownedCounter * recordPixelX * recordPixelY] = shiburinkawaiiyoo(ProcessData, location.X + i * marginX, location.Y + j * marginY);
+
                 }
+
             }
             centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(ProcessData, location.X, location.Y);
 
@@ -625,6 +636,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 WritingFlag = false;
                 writeToText(measureDepthArray,centerDepthArray,"depth");
+                //writeToText(measureIrArray, centerIrArray, "IR");
                 ButtonWriteDown.IsEnabled = true;
             }
         }
