@@ -412,6 +412,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             int VerticalCheckDistance = 150;
             int HorizontalCheckDistance = 150;
+            int HorizontalError = 0;
+            int VerticalError = 0;
             Point roop = new Point();
             if (cursol_locked)
             {
@@ -434,9 +436,13 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                             roop.X = targetPosition.X + HorizontalCheckDistance * indexValueX;
                             roop.Y = targetPosition.Y + VerticalCheckDistance * indexValueY;
                             this.ValueLabels[(indexValueX+1)+3*(indexValueY+1)].Content = roop.ToString()+ "\r\n" + shiburinkawaiiyoo(ProcessData, roop);
+
                         }
                     }
                 }
+                HorizontalError = shiburinkawaiiyoo(ProcessData, targetPosition.X - HorizontalCheckDistance, targetPosition.Y) - shiburinkawaiiyoo(ProcessData, targetPosition.X + HorizontalCheckDistance, targetPosition.Y);
+                VerticalError = shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y - VerticalCheckDistance) - shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y + VerticalCheckDistance);
+                this.filenameLabel.Content = "X error " + HorizontalError.ToString() + "\r\nY error " + VerticalError.ToString();
                 this.StatusText = targetPosition.X + " " + targetPosition.Y +" "+shiburinkawaiiyoo(ProcessData,targetPosition.X,targetPosition.Y)+ " Writing is " +WritingFlag+ " Writed sample number =" + writeDownedCounter.ToString();
             }
             else
