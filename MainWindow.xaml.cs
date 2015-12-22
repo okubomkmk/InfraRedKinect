@@ -100,7 +100,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 10;
+        private int RECORD_SIZE = 30;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = true;
@@ -113,7 +113,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool WritingFlag = false;
         private bool ArrayResized = false;
         private bool FileNameStableFlag = false;
-        private int WaitForStartingRecord = 1;
+        private int WaitForStartingRecord = 7;
         private ushort[] measureDepthArray = new ushort[1];
         private ushort[] centerDepthArray = new ushort[1];
         private ushort[] measureIrArray = new ushort[1];
@@ -410,8 +410,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         }
         private unsafe void TextGenerate(ushort* ProcessData)
         {
-            int VerticalCheckDistance = 200;
-            int HorizontalCheckDistance = 200;
+            int VerticalCheckDistance = 150;
+            int HorizontalCheckDistance = 150;
             Point roop = new Point();
             if (cursol_locked)
             {
@@ -462,6 +462,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         private unsafe void writeToText(ushort[] measureArray, ushort[] centerArray, string type)
         {
+            
             string StartedTime = makeTimestampFilename(timestamp);
             string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type+"hogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
             this.filenameLabel.Content = filenamePartialIR;
