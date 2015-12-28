@@ -100,25 +100,23 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 30;
+        private int RECORD_SIZE = 512;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = true;
         private Point p = new Point();
         private Point targetPosition = new Point();
         private List<KeyValuePair<string, ushort>> MyTimeValue = new List<KeyValuePair<string, ushort>>();
-
         private bool TimeStampFrag = false;
         private bool IsTimestampNeeded = true;
         private bool WritingFlag = false;
         private bool ArrayResized = false;
         private bool FileNameStableFlag = false;
-        private int WaitForStartingRecord = 7;
+        private int WaitForStartingRecord = 3;
         private ushort[] measureDepthArray = new ushort[1];
         private ushort[] centerDepthArray = new ushort[1];
         private ushort[] measureIrArray = new ushort[1];
         private ushort[] centerIrArray = new ushort[1];
-
         private ushort[] IrGlobalArray = new ushort[1];
         private ushort[] DepthGlobalArray = new ushort[1];
 
@@ -410,8 +408,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         }
         private unsafe void TextGenerate(ushort* ProcessData)
         {
-            int VerticalCheckDistance = 150;
-            int HorizontalCheckDistance = 150;
+            int VerticalCheckDistance = 10;
+            int HorizontalCheckDistance = 10;
             int HorizontalError = 0;
             int VerticalError = 0;
             Point roop = new Point();
@@ -440,8 +438,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                         }
                     }
                 }
-                HorizontalError = shiburinkawaiiyoo(ProcessData, targetPosition.X - HorizontalCheckDistance, targetPosition.Y) - shiburinkawaiiyoo(ProcessData, targetPosition.X + HorizontalCheckDistance, targetPosition.Y);
-                VerticalError = shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y - VerticalCheckDistance) - shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y + VerticalCheckDistance);
+                HorizontalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X - HorizontalCheckDistance, targetPosition.Y) - shiburinkawaiiyoo(ProcessData, targetPosition.X + HorizontalCheckDistance, targetPosition.Y));
+                VerticalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y - VerticalCheckDistance) - shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y + VerticalCheckDistance));
                 this.filenameLabel.Content = "X error " + HorizontalError.ToString() + "\r\nY error " + VerticalError.ToString();
                 this.StatusText = targetPosition.X + " " + targetPosition.Y +" "+shiburinkawaiiyoo(ProcessData,targetPosition.X,targetPosition.Y)+ " Writing is " +WritingFlag+ " Writed sample number =" + writeDownedCounter.ToString();
             }
@@ -470,9 +468,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             
             string StartedTime = makeTimestampFilename(timestamp);
-            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type+"hogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
+            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type+ "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
             this.filenameLabel.Content = filenamePartialIR;
-            string filenameCenterIR = FileNameStableFlag ?  System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type +"centerhogehoge.dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+"IRcenter.dat");
+            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\", StartedTime + "IRcenter.dat");
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             
@@ -623,8 +621,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             int recordPixelX = 11; //水平方向の記録ピクセル数 odd
             int recordPixelY = 11; //垂直方向の記録ピクセル数 odd
-            int marginX = 20; // 記録するピクセルの間隔　1=連続
-            int marginY = 20; // 記録するピクセルの間隔　1=連続
+            int marginX = 1; // 記録するピクセルの間隔　1=連続
+            int marginY = 1; // 記録するピクセルの間隔　1=連続
 
             int x = (int)(recordPixelX / 2);
             int y = (int)(recordPixelY / 2);
