@@ -100,7 +100,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 512;
+        private int RECORD_SIZE = 100;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = true;
@@ -112,7 +112,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool WritingFlag = false;
         private bool ArrayResized = false;
         private bool FileNameStableFlag = false;
-        private int WaitForStartingRecord = 3;
+        private int WaitForStartingRecord = 1;
         private ushort[] measureDepthArray = new ushort[1];
         private ushort[] centerDepthArray = new ushort[1];
         private ushort[] measureIrArray = new ushort[1];
@@ -621,8 +621,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             int recordPixelX = 11; //水平方向の記録ピクセル数 odd
             int recordPixelY = 11; //垂直方向の記録ピクセル数 odd
-            int marginX = 1; // 記録するピクセルの間隔　1=連続
-            int marginY = 1; // 記録するピクセルの間隔　1=連続
+            int marginX = 20; // 記録するピクセルの間隔　1=連続
+            int marginY = 20; // 記録するピクセルの間隔　1=連続
 
             int x = (int)(recordPixelX / 2);
             int y = (int)(recordPixelY / 2);
@@ -635,18 +635,18 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             }
             ArrayResized = true;
             int index_value = 0;
-            for (int i = -y ; i <= y ; i++)
+            for (int j = -y ; j <= y ; j++)
             {
-                for (int j = -x; j <= x; j++)
+                for (int i = -x; i <= x; i++)
                 {
-                    index_value = (i + y) * recordPixelY + (j + x);
+                    index_value = (j + y) * recordPixelY + (i + x);
                     measureDepthArray[index_value + writeDownedCounter * recordPixelX * recordPixelY] = shiburinkawaiiyoo(DepthGlobalArray, location.X + i * marginX, location.Y + j * marginY);
                     measureIrArray[index_value + writeDownedCounter * recordPixelX * recordPixelY] = shiburinkawaiiyoo(IrGlobalArray, location.X + i * marginX, location.Y + j * marginY);
 
                 }
             }
-            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(DepthGlobalArray, location.X, location.Y);
-            centerIrArray[writeDownedCounter] = shiburinkawaiiyoo(IrGlobalArray, location.X, location.Y);
+            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(DepthGlobalArray, location.X - 20, location.Y - 80);
+            centerIrArray[writeDownedCounter] = shiburinkawaiiyoo(IrGlobalArray, location.X + 80, location.Y - 60);
 
             writeDownedCounter++;
             if (writeDownedCounter == centerDepthArray.Length)
