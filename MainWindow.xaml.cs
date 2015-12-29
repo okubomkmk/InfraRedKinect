@@ -103,7 +103,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private int RECORD_SIZE = 100;
         private int counter = 0;
         private int writeDownedCounter = 0;
-        private bool cursol_locked = true;
+        private bool cursol_locked = false;
         private Point p = new Point();
         private Point targetPosition = new Point();
         private List<KeyValuePair<string, ushort>> MyTimeValue = new List<KeyValuePair<string, ushort>>();
@@ -434,12 +434,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                             roop.X = targetPosition.X + HorizontalCheckDistance * indexValueX;
                             roop.Y = targetPosition.Y + VerticalCheckDistance * indexValueY;
                             this.ValueLabels[(indexValueX+1)+3*(indexValueY+1)].Content = roop.ToString()+ "\r\n" + shiburinkawaiiyoo(ProcessData, roop);
+                            HorizontalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X - HorizontalCheckDistance, targetPosition.Y) - shiburinkawaiiyoo(ProcessData, targetPosition.X + HorizontalCheckDistance, targetPosition.Y));
+                            VerticalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y - VerticalCheckDistance) - shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y + VerticalCheckDistance));
 
                         }
                     }
                 }
-                HorizontalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X - HorizontalCheckDistance, targetPosition.Y) - shiburinkawaiiyoo(ProcessData, targetPosition.X + HorizontalCheckDistance, targetPosition.Y));
-                VerticalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y - VerticalCheckDistance) - shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y + VerticalCheckDistance));
                 this.filenameLabel.Content = "X error " + HorizontalError.ToString() + "\r\nY error " + VerticalError.ToString();
                 this.StatusText = targetPosition.X + " " + targetPosition.Y +" "+shiburinkawaiiyoo(ProcessData,targetPosition.X,targetPosition.Y)+ " Writing is " +WritingFlag+ " Writed sample number =" + writeDownedCounter.ToString();
             }
@@ -557,6 +557,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             ButtonEditorTimer.Start();
             writeDownedCounter = 0;
             ButtonWriteDown.IsEnabled = false;
+            textXlock.IsEnabled = false;
+            textYlock.IsEnabled = false;
             timestamp = DateTime.Now;  //timestamp is the time when the record is started
             
         }
@@ -694,6 +696,17 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             FileNameStableFlag = false;
             IsTimestampNeeded = true;
             this.CheckNonTimeStamp.IsEnabled = true;
+        }
+
+        private void Picture_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!WritingFlag)
+            {
+                this.textXlock.Text = e.GetPosition(Picture).X.ToString();
+                this.textYlock.Text = e.GetPosition(Picture).Y.ToString();
+            }
+
+
         }
     }
 }
