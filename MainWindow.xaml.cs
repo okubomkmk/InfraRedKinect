@@ -101,7 +101,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 100;
+        private int RECORD_SIZE = 32;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = false;
@@ -469,9 +469,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             
 
             string StartedTime = makeTimestampFilename(timestamp);
-            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type+ "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
+            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", StartedTime + type + ".dat");
             this.filenameLabel.Content = filenamePartialIR;
-            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\", StartedTime + "IRcenter.dat");
+            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", StartedTime + "IRcenter.dat");
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             
