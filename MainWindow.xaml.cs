@@ -97,6 +97,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
 
 
+
         /// <summary>
         /// Current status text to display
         /// </summary>
@@ -162,7 +163,6 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
             // create the bitmap to display
             this.depthBitmap = new WriteableBitmap(this.depthFrameDescription.Width, this.depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
-
 
             // open the sensor
             this.kinectSensor.Open();
@@ -467,6 +467,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private unsafe void writeToText(ushort[] measureArray, ushort[] centerArray, string type)
         {
             
+
             string StartedTime = makeTimestampFilename(timestamp);
             string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",type+ "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"C:\Users\mkuser\Documents\capturedData\",StartedTime+type+".dat");
             this.filenameLabel.Content = filenamePartialIR;
@@ -502,6 +503,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             
 
         }
+
         private Point getLockPosition()
         {
             double temp;
@@ -621,10 +623,10 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         */
         private unsafe void writeToArrayRectangle(ushort* ProcessData, Point location)
         {
-            int recordPixelX = 11; //水平方向の記録ピクセル数 odd
-            int recordPixelY = 11; //垂直方向の記録ピクセル数 odd
-            int marginX = 20; // 記録するピクセルの間隔　1=連続
-            int marginY = 20; // 記録するピクセルの間隔　1=連続
+            int recordPixelX = 351; //水平方向の記録ピクセル数 odd
+            int recordPixelY = 351; //垂直方向の記録ピクセル数 odd
+            int marginX = 1; // 記録するピクセルの間隔　1=連続
+            int marginY = 1; // 記録するピクセルの間隔　1=連続
 
             int x = (int)(recordPixelX / 2);
             int y = (int)(recordPixelY / 2);
@@ -659,8 +661,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 ButtonWriteDown.IsEnabled = true;
             }
         }
+        
+        private unsafe void testWrite(ushort* ProcessData, Point location)
+        {
 
-
+        }
         private string makeTimestampFilename(DateTime printTime)
         {
             string mikachan = printTime.ToString().Replace(@"/", "");
