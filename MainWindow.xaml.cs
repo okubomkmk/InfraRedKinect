@@ -680,16 +680,28 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         private void ChangeData_Click(object sender, RoutedEventArgs e)
         {
+            WriteableBitmap tempbitmap;
             if (mapIsIR)
             {
                 this.ChangeData.Content = "ToInfraRed";
-                this.Picture.Source = depthBitmap;
+                tempbitmap = this.depthBitmap;
             }
             else
             {
                 this.ChangeData.Content = "ToDepth";
-                this.Picture.Source = infraredBitmap;
+                tempbitmap = this.infraredBitmap;
             }
+            
+            DrawingGroup drawer = new DrawingGroup();
+            using (var drawContent = drawer.Open())
+            {
+                drawContent.DrawImage(tempbitmap, new System.Windows.Rect(0, 0, tempbitmap.PixelWidth, tempbitmap.PixelHeight));
+
+
+                drawContent.DrawText(new FormattedText("test", System.Globalization.CultureInfo.CurrentUICulture, System.Windows.FlowDirection.LeftToRight, new Typeface("Verdana"), 100, Brushes.Gold), new System.Windows.Point(100, 100));
+            }
+            
+            this.Picture.Source = new DrawingImage(drawer);
             mapIsIR = !mapIsIR;
         }
 
