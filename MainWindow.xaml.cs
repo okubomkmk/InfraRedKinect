@@ -647,8 +647,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
                 }
             }
-            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(DepthGlobalArray, location.X - 20, location.Y - 80);
-            centerIrArray[writeDownedCounter] = shiburinkawaiiyoo(IrGlobalArray, location.X + 80, location.Y - 60);
+            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(DepthGlobalArray, location.X, location.Y);
+            centerIrArray[writeDownedCounter] = shiburinkawaiiyoo(IrGlobalArray, location.X, location.Y);
 
             writeDownedCounter++;
             if (writeDownedCounter == centerDepthArray.Length)
