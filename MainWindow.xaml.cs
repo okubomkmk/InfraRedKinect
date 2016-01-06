@@ -691,17 +691,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 this.ChangeData.Content = "ToDepth";
                 tempbitmap = this.infraredBitmap;
             }
+            this.Picture.Source = tempbitmap;
             
-            DrawingGroup drawer = new DrawingGroup();
-            using (var drawContent = drawer.Open())
-            {
-                drawContent.DrawImage(tempbitmap, new System.Windows.Rect(0, 0, tempbitmap.PixelWidth, tempbitmap.PixelHeight));
-
-
-                drawContent.DrawText(new FormattedText("test", System.Globalization.CultureInfo.CurrentUICulture, System.Windows.FlowDirection.LeftToRight, new Typeface("Verdana"), 100, Brushes.Gold), new System.Windows.Point(100, 100));
-            }
-            
-            this.Picture.Source = new DrawingImage(drawer);
             mapIsIR = !mapIsIR;
         }
 
@@ -726,7 +717,17 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 this.textXlock.Text = e.GetPosition(Picture).X.ToString();
                 this.textYlock.Text = e.GetPosition(Picture).Y.ToString();
             }
+            DrawingGroup drawer = new DrawingGroup();
+            WriteableBitmap tempbitmap = mapIsIR ? this.infraredBitmap : this.depthBitmap;
+            using (var drawContent = drawer.Open())
+            {
+                drawContent.DrawImage(tempbitmap, new System.Windows.Rect(0, 0, tempbitmap.PixelWidth, tempbitmap.PixelHeight));
 
+
+                drawContent.DrawText(new FormattedText("●", System.Globalization.CultureInfo.CurrentUICulture, System.Windows.FlowDirection.LeftToRight, new Typeface("Verdana"), 10, Brushes.Gold), e.GetPosition(this.Picture));
+            }
+
+            this.Picture.Source = new DrawingImage(drawer);
 
         }
 
