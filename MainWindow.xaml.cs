@@ -30,7 +30,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// Maximum value (as a float) that can be returned by the InfraredFrame
         /// </summary>
         private const float InfraredSourceValueMaximum = (float)ushort.MaxValue;
-        
+
         /// <summary>
         /// The value by which the infrared source data will be scaled
         /// </summary>
@@ -65,9 +65,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// Bitmap to display
         /// </summary>
         private WriteableBitmap infraredBitmap = null;
-        
-        
-        
+
+
+
         private DepthFrameReader depthFrameReader = null;
 
         /// <summary> merge sareru?s
@@ -94,9 +94,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
         /// 
-
-
-
+        private BodyFrameReader bodyFrameReader = null;
+        private Body[] bodies;
+              
 
         /// <summary>
         /// Current status text to display
@@ -164,6 +164,10 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             // create the bitmap to display
             this.depthBitmap = new WriteableBitmap(this.depthFrameDescription.Width, this.depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
 
+            this.bodyFrameReader = kinectSensor.BodyFrameSource.OpenReader();
+            this.bodyFrameReader.FrameArrived  += bodyFrameReader_FrameArrived;
+            this.bodies = new Body[kinectSensor.BodyFrameSource.BodyCount];
+
             // open the sensor
             this.kinectSensor.Open();
 
@@ -201,7 +205,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Gets the bitmap to display
         /// </summary>
-        
+
 
         /// <summary>
         /// Gets or sets the current status text to display
@@ -325,11 +329,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 TextGenerate(frameData);
             }
 
-            for (int i = 0; i < this.depthFrameDescription.Width* this.depthFrameDescription.Height; i++)
+            for (int i = 0; i < this.depthFrameDescription.Width * this.depthFrameDescription.Height; i++)
             {
                 DepthGlobalArray[i] = frameData[i];
             }
-            
+
             // convert depth to a visual representation
             for (int i = 0; i < (int)(depthFrameDataSize / this.depthFrameDescription.BytesPerPixel); ++i)
             {
@@ -374,8 +378,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 IrGlobalArray[i] = frameData[i];
             }
-                // lock the target bitmap
-                this.infraredBitmap.Lock();
+            // lock the target bitmap
+            this.infraredBitmap.Lock();
 
             // get the pointer to the bitmap's back buffer
             float* backBuffer = (float*)this.infraredBitmap.BackBuffer;
@@ -425,7 +429,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                     TimeStampFrag = false;
                 }
                 targetPosition = getLockPosition();
-                if(targetPosition.X==256 && targetPosition.Y == 212 && !WritingFlag)
+                if (targetPosition.X == 256 && targetPosition.Y == 212 && !WritingFlag)
                 {
                     for (int indexValueX = -1; indexValueX < 2; indexValueX++)
                     {
@@ -433,7 +437,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                         {
                             roop.X = targetPosition.X + HorizontalCheckDistance * indexValueX;
                             roop.Y = targetPosition.Y + VerticalCheckDistance * indexValueY;
-                            this.ValueLabels[(indexValueX+1)+3*(indexValueY+1)].Content = roop.ToString()+ "\r\n" + shiburinkawaiiyoo(ProcessData, roop);
+                            this.ValueLabels[(indexValueX + 1) + 3 * (indexValueY + 1)].Content = roop.ToString() + "\r\n" + shiburinkawaiiyoo(ProcessData, roop);
                             HorizontalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X - HorizontalCheckDistance, targetPosition.Y) - shiburinkawaiiyoo(ProcessData, targetPosition.X + HorizontalCheckDistance, targetPosition.Y));
                             VerticalError = (shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y - VerticalCheckDistance) - shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y + VerticalCheckDistance));
 
@@ -441,15 +445,15 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                     }
                 }
                 this.filenameLabel.Content = "X error " + HorizontalError.ToString() + "\r\nY error " + VerticalError.ToString();
-                this.StatusText = targetPosition.X + " " + targetPosition.Y +" "+shiburinkawaiiyoo(ProcessData,targetPosition.X,targetPosition.Y)+ " Writing is " +WritingFlag+ " Writed sample number =" + writeDownedCounter.ToString();
+                this.StatusText = targetPosition.X + " " + targetPosition.Y + " " + shiburinkawaiiyoo(ProcessData, targetPosition.X, targetPosition.Y) + " Writing is " + WritingFlag + " Writed sample number =" + writeDownedCounter.ToString();
             }
             else
             {
                 this.StatusText = "unlocked";
             }
         }
-        
-        private unsafe ushort shiburinkawaiiyoo(ushort* ProcessData, double X,double Y)
+
+        private unsafe ushort shiburinkawaiiyoo(ushort* ProcessData, double X, double Y)
         {
             return ProcessData[(int)(Y * this.infraredFrameDescription.Width + X)];
         }
@@ -466,16 +470,16 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         private unsafe void writeToText(ushort[] measureArray, ushort[] centerArray, string type)
         {
-            
+
 
             string StartedTime = makeTimestampFilename(timestamp);
-            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", StartedTime + type + ".dat");
+            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\capturedData\", type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + type + ".dat");
             this.filenameLabel.Content = filenamePartialIR;
-            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\caputuredData\", StartedTime + "IRcenter.dat");
+            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\capturedData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + "IRcenter.dat");
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
-            
-            
+
+
             if (!TimeStampFrag && IsTimestampNeeded)
             {
                 writingSwIR.Write("\nwriting start\n" + timestamp.ToString() + "\r\n"); //time stamp writelinedeyokune?
@@ -486,11 +490,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 writingSwIR.Write(measureArray[i] + "\r\n");
             }
-            for (int j = 0; j < centerArray.Length; j++ )
+            for (int j = 0; j < centerArray.Length; j++)
             {
                 writingCenterIR.Write(centerArray[j].ToString() + "\r\n");
             }
-            
+
             if (IsTimestampNeeded)
             {
                 DateTime dtnow = DateTime.Now;
@@ -500,7 +504,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             timestamp = DateTime.Now;
             writingSwIR.Close();
             writingCenterIR.Close();
-            
+
 
         }
 
@@ -537,7 +541,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 return InvalidNum;
             }
-            
+
         }
 
         private void CheckNonTimeStamp_Checked(object sender, RoutedEventArgs e)
@@ -552,8 +556,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         private void ButtonWriteDown_Click(object sender, RoutedEventArgs e)
         {
-            
-            DispatcherTimer  ButtonEditorTimer = new DispatcherTimer(DispatcherPriority.Normal);
+
+            DispatcherTimer ButtonEditorTimer = new DispatcherTimer(DispatcherPriority.Normal);
             ButtonEditorTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
             ButtonEditorTimer.Tick += new EventHandler(ButtonEdit);
             ButtonEditorTimer.Start();
@@ -562,12 +566,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             textXlock.IsEnabled = false;
             textYlock.IsEnabled = false;
             timestamp = DateTime.Now;  //timestamp is the time when the record is started
-            
+
         }
 
         private void ButtonEdit(object sender, EventArgs e)
         {
-            
+
             this.ButtonWriteDown.Content = (WaitForStartingRecord).ToString();
             WaitForStartingRecord--;
             if (WaitForStartingRecord == -1)
@@ -639,7 +643,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             }
             ArrayResized = true;
             int index_value = 0;
-            for (int j = -y ; j <= y ; j++)
+            for (int j = -y; j <= y; j++)
             {
                 for (int i = -x; i <= x; i++)
                 {
@@ -656,12 +660,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             if (writeDownedCounter == centerDepthArray.Length)
             {
                 WritingFlag = false;
-                writeToText(measureDepthArray,centerDepthArray,"depth");
+                writeToText(measureDepthArray, centerDepthArray, "depth");
                 writeToText(measureIrArray, centerIrArray, "InfraRed");
                 ButtonWriteDown.IsEnabled = true;
             }
         }
-        
+
         private unsafe void testWrite(ushort* ProcessData, Point location)
         {
 
@@ -712,6 +716,30 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             }
 
 
+        }
+
+        private void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
+        {
+            UpdateBodyFrame(e);
+            DrawBodyFrame();
+        }
+
+        private void UpdateBodyFrame(BodyFrameArrivedEventArgs e)
+        {
+            using(var bodyFrame = e.FrameReference.AcquireFrame())
+            {
+                if(bodyFrame == null)
+                {
+                    return;
+                }
+                bodyFrame.GetAndRefreshBodyData(bodies);
+
+            }
+
+        }
+        private void DrawBodyFrame()
+        {
+            
         }
     }
 }
