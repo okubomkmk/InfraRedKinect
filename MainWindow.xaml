@@ -38,8 +38,10 @@
         <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="424" Margin="43,29,0,0" VerticalAlignment="Top" Width="512" Name="Picture" MouseLeftButtonDown="Picture_MouseLeftButtonDown"/>
         
         <CheckBox Content="FileNameStalbe" Grid.Column="1" HorizontalAlignment="Left" Height="21" Margin="567,20,0,0" VerticalAlignment="Top" Width="113" Name="CheckFileNameStable" IsChecked="False" Checked="CheckFileNameStable_Checked" Unchecked="CheckFileNameStable_Unchecked"/>
-        <TextBox HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <TextBox HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
         <TextBox Grid.Column="1" HorizontalAlignment="Left" Height="28" Margin="589,212,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="118" Name="FileNameTextbox"/>
+        <Button Content="up" Grid.Column="1" HorizontalAlignment="Left" Height="18" Margin="535,55,0,0" VerticalAlignment="Top" Width="42" Name="ButtonXup" Click="ButtonXup_Click"/>
+        <Button Content="down" Grid.Column="1" HorizontalAlignment="Left" Height="18" Margin="535,75,0,0" VerticalAlignment="Top" Width="42" Name="ButtonXdown" Click="ButtonXdown_Click"/>
+        <Button Content="up" Grid.Column="1" HorizontalAlignment="Left" Height="18" Margin="535,105,0,0" VerticalAlignment="Top" Width="42" Name="ButtonYup" Click="ButtonYup_Click"/>
+        <Button Content="down" Grid.Column="1" HorizontalAlignment="Left" Height="18" Margin="535,128,0,0" VerticalAlignment="Top" Width="42" Name="ButtonYdown" Click="ButtonYdown_Click"/>
     </Grid>
 </Window>
