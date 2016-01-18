@@ -100,7 +100,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 512;
+        private int RECORD_SIZE = 128;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = false;
@@ -120,10 +120,13 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private ushort[] IrGlobalArray = new ushort[1];
         private ushort[] DepthGlobalArray = new ushort[1];
 
+        private Point FrameSizePoint;
         private DateTime timestamp = new DateTime();
         private System.Windows.Controls.Label[] ValueLabels;
         private const int MapDepthToByte = 8000 / 256;
         private bool mapIsIR = true;
+
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -191,8 +194,21 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.Picture.Source = depthBitmap;
             Array.Resize(ref IrGlobalArray, this.infraredFrameDescription.Width * this.infraredFrameDescription.Height);
             Array.Resize(ref DepthGlobalArray, this.depthFrameDescription.Width * this.depthFrameDescription.Height);
-        }
 
+            
+        }
+/*
+        private void RecordInitializer()
+        {
+            cursol_locked = true;
+            writeDownedCounter = 0;
+            ButtonWriteDown.IsEnabled = false;
+            textXlock.IsEnabled = false;
+            textYlock.IsEnabled = false;
+            timestamp = DateTime.Now;  //timestamp is the time when the record is started
+            WritingFlag = true;
+        }
+        */
         /// <summary>
         /// INotifyPropertyChangedPropertyChanged event to allow window controls to bind to changeable data
         /// </summary>
@@ -468,11 +484,15 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
 
             string StartedTime = makeTimestampFilename(timestamp);
-            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\capturedData\", type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + type + ".dat");
+            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\Eng\FrameData\", type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + type + ".dat");
             this.filenameLabel.Content = filenamePartialIR;
-            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\KinectIR\capturedData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + "IRcenter.dat");
+            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\Eng\FrameData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + "IRcenter.dat");
+            string framesizedataFile = System.IO.Path.Combine(@"V:\Eng\FrameData\", "sizeofframe" + this.FileNameTextbox.GetLineText(0) + ".dat");
+            
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
+
+            System.IO.StreamWriter FramesizeData = new System.IO.StreamWriter(framesizedataFile, false, System.Text.Encoding.GetEncoding("shift_jis"));
             
             
             if (!TimeStampFrag && IsTimestampNeeded)
@@ -499,6 +519,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             timestamp = DateTime.Now;
             writingSwIR.Close();
             writingCenterIR.Close();
+
+            FramesizeData.Write(FrameSizePoint.X + "\r\n" + FrameSizePoint.Y + "\r\n" + RECORD_SIZE + "\r\n");
+            FramesizeData.Close();
             
 
         }
@@ -561,6 +584,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             textYlock.IsEnabled = false;
             timestamp = DateTime.Now;  //timestamp is the time when the record is started
             
+            
         }
 
         private void ButtonEdit(object sender, EventArgs e)
@@ -621,10 +645,13 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         */
         private unsafe void writeToArrayRectangle(ushort* ProcessData, Point location)
         {
-            int recordPixelX = 11; //水平方向の記録ピクセル数 odd
-            int recordPixelY = 11; //垂直方向の記録ピクセル数 odd
+            int recordPixelX = 201; //水平方向の記録ピクセル数 odd
+            int recordPixelY = 201; //垂直方向の記録ピクセル数 odd
             int marginX = 1; // 記録するピクセルの間隔　1=連続
             int marginY = 1; // 記録するピクセルの間隔　1=連続
+
+            FrameSizePoint.X = recordPixelX;
+            FrameSizePoint.Y = recordPixelY;
 
             int x = (int)(recordPixelX / 2);
             int y = (int)(recordPixelY / 2);
@@ -654,8 +681,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             if (writeDownedCounter == centerDepthArray.Length)
             {
                 WritingFlag = false;
-                writeToText(measureDepthArray,centerDepthArray,"depth");
-                writeToText(measureIrArray, centerIrArray, "InfraRed");
+                writeToText(measureDepthArray,centerDepthArray,"Depth");
+                writeToText(measureIrArray, centerIrArray, "Infrared");
                 ButtonWriteDown.IsEnabled = true;
             }
         }
