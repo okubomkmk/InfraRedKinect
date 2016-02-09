@@ -82,12 +82,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         private unsafe void writeToText(ushort[] measureArray, ushort[] centerArray, string type)
         {
-
+            string passSaveFolder = this.fbd.SelectedPath;
             string StartedTime = makeTimestampFilename(timestamp);
-            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\Eng\FrameData\", type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + type + ".dat");
+            string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(passSaveFolder, type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(passSaveFolder, StartedTime + type + ".dat");
             this.filenameLabel.Content = filenamePartialIR;
-            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(@"V:\Eng\FrameData\", type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(@"V:\KinectIR\capturedData\", StartedTime + "IRcenter.dat");
-            string framesizedataFile = System.IO.Path.Combine(@"V:\Eng\FrameData\", "sizeofframe" + this.FileNameTextbox.GetLineText(0) + ".dat");
+            string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(passSaveFolder, type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(passSaveFolder, StartedTime + "IRcenter.dat");
+            string framesizedataFile = System.IO.Path.Combine(passSaveFolder, "sizeofframe" + this.FileNameTextbox.GetLineText(0) + ".dat");
 
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
@@ -206,7 +206,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         private unsafe void writeToArrayPoint(ushort* ProcessData, Point location)
         {
-            int leftX = 239, leftY = 202, rightX = 250, rightY = 210;
+            int leftX = 0, leftY = 0, rightX = 511, rightY = 423;
 
             Point R1 = new Point(leftX, leftY);
             Point R2 = new Point(rightX, rightY);
@@ -229,7 +229,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 for (int i = (int)R1.X; i <= R2.X; i++)
                 {
                     measureDepthArray[writeDownedCounter * Framesize + index_value] = shiburinkawaiiyoo(DepthGlobalArray, i, j);
-                    measureIrArray[writeDownedCounter * Framesize + index_value] = shiburinkawaiiyoo(IrGlobalArray, i, j);
+                    //measureIrArray[writeDownedCounter * Framesize + index_value] = shiburinkawaiiyoo(IrGlobalArray, i, j);
                     index_value++;
                 }
             }

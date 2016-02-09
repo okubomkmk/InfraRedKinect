@@ -100,7 +100,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 2048;
+        private int RECORD_SIZE = 1;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = false;
@@ -125,6 +125,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private System.Windows.Controls.Label[] ValueLabels;
         private const int MapDepthToByte = 8000 / 256;
         private bool mapIsIR = true;
+        FolderBrowserDialog fbd = new FolderBrowserDialog();
 
 
         /// <summary>
@@ -194,6 +195,20 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.Picture.Source = depthBitmap;
             Array.Resize(ref IrGlobalArray, this.infraredFrameDescription.Width * this.infraredFrameDescription.Height);
             Array.Resize(ref DepthGlobalArray, this.depthFrameDescription.Width * this.depthFrameDescription.Height);
+            //FolderBrowserDialogクラスのインスタンスを作成
+
+
+            //上部に表示する説明テキストを指定する
+            this.fbd.Description = "フォルダを指定してください。";
+            //ルートフォルダを指定する
+            //デフォルトでDesktop
+            this.fbd.RootFolder = Environment.SpecialFolder.Desktop;
+            //最初に選択するフォルダを指定する
+            //RootFolder以下にあるフォルダである必要がある
+            this.fbd.SelectedPath = @"V:\KinectIR";
+            //ユーザーが新しいフォルダを作成できるようにする
+            //デフォルトでTrue
+            this.fbd.ShowNewFolderButton = true;
 
             
         }
@@ -436,7 +451,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         private void ButtonWriteDown_Click(object sender, RoutedEventArgs e)
         {
-            
+            this.fbd.ShowDialog();
+            //System.Windows.MessageBox.Show(this.fbd.SelectedPath);
             DispatcherTimer  ButtonEditorTimer = new DispatcherTimer(DispatcherPriority.Normal);
             ButtonEditorTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
             ButtonEditorTimer.Tick += new EventHandler(ButtonEdit);
