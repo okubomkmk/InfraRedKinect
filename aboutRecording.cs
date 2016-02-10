@@ -87,12 +87,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             string filenamePartialIR = FileNameStableFlag ? System.IO.Path.Combine(passSaveFolder, type + "Measure" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(passSaveFolder, StartedTime + type + ".dat");
             this.filenameLabel.Content = filenamePartialIR;
             string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(passSaveFolder, type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(passSaveFolder, StartedTime + "IRcenter.dat");
-            string framesizedataFile = System.IO.Path.Combine(passSaveFolder, "sizeofframe" + this.FileNameTextbox.GetLineText(0) + ".dat");
+            string framesizedataFile = System.IO.Path.Combine(passSaveFolder, "sizeofframe" + this.FileNameTextbox.GetLineText(0) + type + ".dat");
 
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
 
-            System.IO.StreamWriter FramesizeData = new System.IO.StreamWriter(framesizedataFile, false, System.Text.Encoding.GetEncoding("shift_jis"));
+            FramesizeData = new System.IO.StreamWriter(framesizedataFile, false, System.Text.Encoding.GetEncoding("shift_jis"));
 
 
             if (!TimeStampFrag && IsTimestampNeeded)
@@ -121,6 +121,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             writingCenterIR.Close();
 
             FramesizeData.Write(FrameSizePoint.X + "\r\n" + FrameSizePoint.Y + "\r\n" + RECORD_SIZE + "\r\n");
+            FramesizeData.Write(type + "\r\n" + filenamePartialIR + "\r\nUnix\r\n" + makeFilePassForUnix(filenamePartialIR));
+
             FramesizeData.Close();
 
 
@@ -229,7 +231,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 for (int i = (int)R1.X; i <= R2.X; i++)
                 {
                     measureDepthArray[writeDownedCounter * Framesize + index_value] = shiburinkawaiiyoo(DepthGlobalArray, i, j);
-                    //measureIrArray[writeDownedCounter * Framesize + index_value] = shiburinkawaiiyoo(IrGlobalArray, i, j);
+                    measureIrArray[writeDownedCounter * Framesize + index_value] = shiburinkawaiiyoo(IrGlobalArray, i, j);
                     index_value++;
                 }
             }

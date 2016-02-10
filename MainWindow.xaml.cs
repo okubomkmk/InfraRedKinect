@@ -126,6 +126,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private const int MapDepthToByte = 8000 / 256;
         private bool mapIsIR = true;
         FolderBrowserDialog fbd = new FolderBrowserDialog();
+        private System.IO.StreamWriter FramesizeData;
 
 
         /// <summary>
@@ -532,6 +533,18 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             return mikachan;
         }
 
+        private string makeFilePassForUnix(string pass)
+        {
+            string passUnix = "mika";
+            if (pass.IndexOf(@"V:\") < 0)
+            {
+                return passUnix; 
+            }
+            pass = pass.Replace(@"V:\", @"/home/mkuser/");
+            pass = pass.Replace(@"\", @"/");
+            return pass;            
+        }
+
         private void ChangeData_Click(object sender, RoutedEventArgs e)
         {
             if (mapIsIR)
@@ -565,8 +578,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             if (!WritingFlag)
             {
-                this.textXlock.Text = e.GetPosition(Picture).X.ToString();
-                this.textYlock.Text = e.GetPosition(Picture).Y.ToString();
+                this.textXlock.Text = e.GetPosition(this.Picture).X.ToString();
+                this.textYlock.Text = e.GetPosition(this.Picture).Y.ToString();
             }
 
 
