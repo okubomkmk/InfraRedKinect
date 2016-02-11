@@ -106,6 +106,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool cursol_locked = false;
         private Point p = new Point();
         private Point targetPosition = new Point();
+        private Point R1, R2;
+
         private List<KeyValuePair<string, ushort>> MyTimeValue = new List<KeyValuePair<string, ushort>>();
         private bool TimeStampFrag = false;
         private bool IsTimestampNeeded = true;

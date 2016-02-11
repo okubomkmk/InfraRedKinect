@@ -88,7 +88,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.filenameLabel.Content = filenamePartialIR;
             string filenameCenterIR = FileNameStableFlag ? System.IO.Path.Combine(passSaveFolder, type + "Center" + this.FileNameTextbox.GetLineText(0) + ".dat") : System.IO.Path.Combine(passSaveFolder, StartedTime + "IRcenter.dat");
             string framesizedataFile = System.IO.Path.Combine(passSaveFolder, "sizeofframe" + this.FileNameTextbox.GetLineText(0) + type + ".dat");
-
+            string imageFileName = System.IO.Path.Combine(passSaveFolder, "image" + this.FileNameTextbox.GetLineText(0) + type + ".bmp");
             System.IO.StreamWriter writingSwIR = new System.IO.StreamWriter(filenamePartialIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
             System.IO.StreamWriter writingCenterIR = new System.IO.StreamWriter(filenameCenterIR, false, System.Text.Encoding.GetEncoding("shift_jis"));
 
@@ -109,10 +109,10 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 writingCenterIR.Write(centerArray[j].ToString() + "\r\n");
             }
+            DateTime dtnow = DateTime.Now;
 
             if (IsTimestampNeeded)
             {
-                DateTime dtnow = DateTime.Now;
                 writingSwIR.Write(dtnow.ToString() + "redord ended");
                 writingCenterIR.Write(dtnow.ToString() + "redord ended");
             }
@@ -121,10 +121,29 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             writingCenterIR.Close();
 
             FramesizeData.Write(FrameSizePoint.X + "\r\n" + FrameSizePoint.Y + "\r\n" + RECORD_SIZE + "\r\n");
-            FramesizeData.Write(type + "\r\n" + filenamePartialIR + "\r\nUnix\r\n" + makeFilePassForUnix(filenamePartialIR));
+            FramesizeData.Write(type + "\r\n" + filenamePartialIR + "\r\n" + "Unix" + "\r\n" + makeFilePassForUnix(filenamePartialIR) + "\r\n");
+            FramesizeData.Write(dtnow.ToString() + "\r\n" + "Xleft = " + R1.X.ToString() + " Yleft = " + R1.Y.ToString() + "\r\nXright = " + R2.X.ToString() + " Yright = " + R2.Y.ToString() + "\r\n");
+            FramesizeData.Write(this.CommentTextBox.Text + "\r\n");
 
+            using (FileStream imageStream = new FileStream(imageFileName, FileMode.Create, FileAccess.Write))
+            {
+                BmpBitmapEncoder encoder = new BmpBitmapEncoder();
+                if(type.Equals("Depth"))
+                {
+                    encoder.Frames.Add(BitmapFrame.Create(depthBitmap));
+                    encoder.Save(imageStream);
+                }
+                else if (type.Equals("Infrared"))
+                {
+                    encoder.Frames.Add(BitmapFrame.Create(infraredBitmap));
+                    encoder.Save(imageStream);
+                }
+                else
+                {
+                    FramesizeData.Write("image was not created");
+                }
+            }
             FramesizeData.Close();
-
 
         }
         private Point getLockPosition()
@@ -210,8 +229,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         {
             int leftX = 0, leftY = 0, rightX = 511, rightY = 423;
 
-            Point R1 = new Point(leftX, leftY);
-            Point R2 = new Point(rightX, rightY);
+            R1 = new Point(leftX, leftY);
+            R2 = new Point(rightX, rightY);
 
             FrameSizePoint.X = R2.X - R1.X + 1;
             FrameSizePoint.Y = R2.Y - R1.Y + 1;
@@ -250,6 +269,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
 
         }
+
+            
 
     }
 }

@@ -43,5 +43,6 @@
         <Button Content="down" Grid.Column="1" HorizontalAlignment="Left" Height="18" Margin="535,75,0,0" VerticalAlignment="Top" Width="42" Name="ButtonXdown" Click="ButtonXdown_Click"/>
         <Button Content="up" Grid.Column="1" HorizontalAlignment="Left" Height="18" Margin="535,105,0,0" VerticalAlignment="Top" Width="42" Name="ButtonYup" Click="ButtonYup_Click"/>
         <Button Content="down" Grid.Column="1" HorizontalAlignment="Left" Height="18" Margin="535,128,0,0" VerticalAlignment="Top" Width="42" Name="ButtonYdown" Click="ButtonYdown_Click"/>
+        <TextBox Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="49" Margin="43,541,0,0" TextWrapping="Wrap" Text="seiriseiton" VerticalAlignment="Top" Width="568" Name="CommentTextBox" />
     </Grid>
 </Window>
