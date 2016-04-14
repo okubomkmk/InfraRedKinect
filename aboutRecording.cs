@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -39,6 +38,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 else
                 {
                     TimeStampFrag = false;
+                    
+                    //tcpsender.sendLockedPoint(DepthGlobalArray, getLockPosition());
+
                 }
                 targetPosition = getLockPosition();
                 if (targetPosition.X == 256 && targetPosition.Y == 212 && !WritingFlag)
@@ -228,9 +230,16 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private unsafe void writeToArrayPoint(ushort* ProcessData, Point location)
         {
             int leftX = 0, leftY = 0, rightX = 511, rightY = 423;
-
-            R1 = new Point(leftX, leftY);
-            R2 = new Point(rightX, rightY);
+            if (!areaReader.IsRead)
+            {
+                R1 = areaReader.BeginPoint;
+                R2 = areaReader.EndPoint;
+            }
+            else
+            {
+                R1 = new Point(leftX, leftY);
+                R2 = new Point(rightX, rightY);
+            }
 
             FrameSizePoint.X = R2.X - R1.X + 1;
             FrameSizePoint.Y = R2.Y - R1.Y + 1;
@@ -266,6 +275,46 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 ButtonWriteDown.IsEnabled = true;
             }
 
+
+
+        }
+        private unsafe void writeFullFrameToArray(ushort* ProcessData)
+        {
+            FrameSizePoint.X = depthFrameDescription.Width;
+            FrameSizePoint.Y = depthFrameDescription.Height;
+            if (!ArrayResized)
+            {
+                Array.Resize(ref measureDepthArray, RECORD_SIZE * (int)(FrameSizePoint.X * FrameSizePoint.Y));
+                Array.Resize(ref centerDepthArray, RECORD_SIZE);
+
+            }
+
+            ArrayResized = true;
+            int Framesize = (int)(FrameSizePoint.X * FrameSizePoint.Y);
+
+            int index_value = 0;
+            for (int j = 0; j < depthFrameDescription.Height; j++)
+            {
+                for (int i = 0; i < depthFrameDescription.Width; i++)
+                {
+                    measureDepthArray[writeDownedCounter * Framesize + index_value] = shiburinkawaiiyoo(ProcessData, i, j);
+                    index_value++;
+                }
+            }
+
+
+
+        }
+        private void writeColorFrameToFile(byte[] buffer)
+        {
+            int Height = 1920;
+            int Width = 1080;
+
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                writingColor.Write(buffer[i].ToString() + "\r\n");
+            }
 
 
         }

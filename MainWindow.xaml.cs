@@ -21,10 +21,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
     using System.Collections.Generic;
     using System.Threading;
     using System.Windows.Threading;
+    using OpenCvSharp;
+    using OpenCvSharp.Extensions;
     /// <summary>
     /// Interaction logic for the MainWindow
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : System.Windows.Window, INotifyPropertyChanged
     {
         /// <summary>
         /// Maximum value (as a float) that can be returned by the InfraredFrame
@@ -104,9 +106,9 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = false;
-        private Point p = new Point();
-        private Point targetPosition = new Point();
-        private Point R1, R2;
+        private System.Windows.Point p = new System.Windows.Point();
+        private System.Windows.Point targetPosition = new System.Windows.Point();
+        private System.Windows.Point R1, R2;
 
         private List<KeyValuePair<string, ushort>> MyTimeValue = new List<KeyValuePair<string, ushort>>();
         private bool TimeStampFrag = false;
@@ -114,6 +116,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool WritingFlag = false;
         private bool ArrayResized = false;
         private bool FileNameStableFlag = false;
+        private bool senderCatchException = false;
+
         private int WaitForStartingRecord = 1;
         private ushort[] measureDepthArray = new ushort[1];
         private ushort[] centerDepthArray = new ushort[1];
@@ -122,13 +126,16 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private ushort[] IrGlobalArray = new ushort[1];
         private ushort[] DepthGlobalArray = new ushort[1];
 
-        private Point FrameSizePoint;
+        private System.Windows.Point FrameSizePoint;
         private DateTime timestamp = new DateTime();
         private System.Windows.Controls.Label[] ValueLabels;
         private const int MapDepthToByte = 8000 / 256;
         private bool mapIsIR = true;
         FolderBrowserDialog fbd = new FolderBrowserDialog();
         private System.IO.StreamWriter FramesizeData;
+        private readFromcppdata areaReader = new readFromcppdata();
+        
+        //private tcpSender tcpsender = new tcpSender();
 
 
         /// <summary>
@@ -281,6 +288,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 this.kinectSensor.Close();
                 this.kinectSensor = null;
             }
+               //tcpsender.sendEndCode();
+            //tcpsender.close();
 
 
         }
@@ -391,7 +400,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// Directly accesses the underlying image buffer of the InfraredFrame to 
         /// create a displayable bitmap.
         /// This function requires the /unsafe compiler option as we make use of direct
-        /// access to the native memory pointed to by the infraredFrameData pointer.
+        /// access to the native memory System.Windows.Pointed to by the infraredFrameData pointer.
         /// </summary>
         /// <param name="infraredFrameData">Pointer to the InfraredFrame image data</param>
         /// <param name="infraredFrameDataSize">Size of the InfraredFrame image data</param>
@@ -429,126 +438,23 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.infraredBitmap.Unlock();
         }
 
-        /// <summary>
-        /// Handles the event which the sensor becomes unavailable (E.g. paused, closed, unplugged).
-        /// </summary>
-        /// <param name="sender">object sending the event</param>
-        /// <param name="e">event arguments</param>
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
         {
             // set the status text
             this.StatusText = this.kinectSensor.IsAvailable ? Properties.Resources.RunningStatusText
                                                             : Properties.Resources.SensorNotAvailableStatusText;
-        }
-        
 
-        private void CheckNonTimeStamp_Checked(object sender, RoutedEventArgs e)
-        {
-            IsTimestampNeeded = false;
-        }
-
-        private void CheckNonTimeStamp_Unchecked(object sender, RoutedEventArgs e)
-        {
-            IsTimestampNeeded = true;
-        }
-
-        private void ButtonWriteDown_Click(object sender, RoutedEventArgs e)
-        {
-            this.fbd.ShowDialog();
-            //System.Windows.MessageBox.Show(this.fbd.SelectedPath);
-            DispatcherTimer  ButtonEditorTimer = new DispatcherTimer(DispatcherPriority.Normal);
-            ButtonEditorTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
-            ButtonEditorTimer.Tick += new EventHandler(ButtonEdit);
-            ButtonEditorTimer.Start();
-            writeDownedCounter = 0;
-            ButtonWriteDown.IsEnabled = false;
-            textXlock.IsEnabled = false;
-            textYlock.IsEnabled = false;
-            timestamp = DateTime.Now;  //timestamp is the time when the record is started
-            
             
         }
-
-        private void ButtonEdit(object sender, EventArgs e)
-        {
-            
-            this.ButtonWriteDown.Content = (WaitForStartingRecord).ToString();
-            WaitForStartingRecord--;
-            if (WaitForStartingRecord == -1)
-            {
-                WritingFlag = true;
-            }
-        }
-
-        private void CheckLockCenter_Checked(object sender, RoutedEventArgs e)
-        {
-            cursol_locked = true;
-            this.ButtonWriteDown.IsEnabled = true;
-        }
-
-        private void CheckLockCenter_Unchecked(object sender, RoutedEventArgs e)
-        {
-            cursol_locked = false;
-            this.ButtonWriteDown.IsEnabled = false;
-        }
-        /*
-        private unsafe void writeToArrayHorizontalPixels(ushort* ProcessData, Point location)
-        {
-            int horizonalLength = 3; //記録する長さ　片側
-            int pixelMargin = 1; //ピクセル間隔
-                
-            if (!ArrayResized)
-            {
-                Array.Resize(ref measureDepthArray, RECORD_SIZE * (2 * horizonalLength + 1));
-                Array.Resize(ref centerDepthArray, RECORD_SIZE);
-            }
-            ArrayResized = true;
-            int index_value = 0;
-            double pointX;
-            double pointY;
-            for (int i = 0; i < horizonalLength * 2 + 1; i++)
-            {
-
-                index_value = i;
-                pointX = location.X + (index_value - horizonalLength) * pixelMargin;
-                pointY = location.Y;
-                measureDepthArray[index_value + writeDownedCounter * (horizonalLength * 2 + 1)] = shiburinkawaiiyoo(ProcessData, pointX, pointY);
-
-            }
-            centerDepthArray[writeDownedCounter] = shiburinkawaiiyoo(ProcessData, location.X, location.Y);
-
-            writeDownedCounter++;
-            if (writeDownedCounter == measureDepthArray.Length / 7)
-            {
-                WritingFlag = false;
-                writeToText(measureDepthArray, centerDepthArray, "Depth");
-                ButtonWriteDown.IsEnabled = true;            }
-        }
-        */
-        
-
-        private string makeTimestampFilename(DateTime printTime)
-        {
-            string mikachan = printTime.ToString().Replace(@"/", "");
-            mikachan = mikachan.Replace(@":", "");
-            mikachan = mikachan.Replace(" ", "");
-            return mikachan;
-        }
-
-        private string makeFilePassForUnix(string pass)
-        {
-            string passUnix = "mika";
-            if (pass.IndexOf(@"V:\") < 0)
-            {
-                return passUnix; 
-            }
-            pass = pass.Replace(@"V:\", @"/home/mkuser/");
-            pass = pass.Replace(@"\", @"/");
-            return pass;            
-        }
+        /// <summary>
+        /// Handles the event which the sensor becomes unavailable (E.g. paused, closed, unplugged).
+        /// </summary>
+        /// <param name="sender">object sending the event</param>
+        /// <param name="e">event arguments</param>
 
         private void ChangeData_Click(object sender, RoutedEventArgs e)
         {
+            
             if (mapIsIR)
             {
                 this.ChangeData.Content = "ToInfraRed";
@@ -560,60 +466,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 this.Picture.Source = infraredBitmap;
             }
             mapIsIR = !mapIsIR;
-        }
-
-        private void CheckFileNameStable_Checked(object sender, RoutedEventArgs e)
-        {
-            FileNameStableFlag = true;
-            IsTimestampNeeded = false;
-            this.CheckNonTimeStamp.IsEnabled = false;
-        }
-
-        private void CheckFileNameStable_Unchecked(object sender, RoutedEventArgs e)
-        {
-            FileNameStableFlag = false;
-            IsTimestampNeeded = true;
-            this.CheckNonTimeStamp.IsEnabled = true;
-        }
-
-        private void Picture_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (!WritingFlag)
-            {
-                this.textXlock.Text = e.GetPosition(this.Picture).X.ToString();
-                this.textYlock.Text = e.GetPosition(this.Picture).Y.ToString();
-            }
-
-
-        }
-
-        private void ButtonXup_Click(object sender, RoutedEventArgs e)
-        {
-            Point pointNow = getLockPosition();
-            pointNow.X++;
-            this.textXlock.Text = pointNow.X.ToString();
             
+             
         }
 
-        private void ButtonXdown_Click(object sender, RoutedEventArgs e)
-        {
-            Point pointNow = getLockPosition();
-            pointNow.X--;
-            this.textXlock.Text = pointNow.X.ToString();
-        }
+        
+             
 
-        private void ButtonYup_Click(object sender, RoutedEventArgs e)
-        {
-            Point pointNow = getLockPosition();
-            pointNow.Y++;
-            this.textYlock.Text = pointNow.Y.ToString();
-        }
-
-        private void ButtonYdown_Click(object sender, RoutedEventArgs e)
-        {
-            Point pointNow = getLockPosition();
-            pointNow.Y--;
-            this.textYlock.Text = pointNow.Y.ToString();
-        }
     }
 }
