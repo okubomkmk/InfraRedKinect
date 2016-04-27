@@ -174,6 +174,12 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             PointNow.Y--;
             this.textYlock.Text = PointNow.Y.ToString();
         }
+
+        private void ButtonROI_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
     }    
 }
 

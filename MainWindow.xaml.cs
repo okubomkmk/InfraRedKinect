@@ -102,7 +102,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 1;
+        private int RECORD_SIZE = 2700;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = false;
@@ -134,8 +134,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         FolderBrowserDialog fbd = new FolderBrowserDialog();
         private System.IO.StreamWriter FramesizeData;
         private readFromcppdata areaReader = new readFromcppdata();
-        
-        //private tcpSender tcpsender = new tcpSender();
+        private tcpSender tcpsender = new tcpSender();
 
 
         /// <summary>
@@ -288,8 +287,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 this.kinectSensor.Close();
                 this.kinectSensor = null;
             }
-               //tcpsender.sendEndCode();
-            //tcpsender.close();
+               tcpsender.sendEndCode();
+            tcpsender.close();
 
 
         }
@@ -469,6 +468,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             
              
         }
+
 
         
              

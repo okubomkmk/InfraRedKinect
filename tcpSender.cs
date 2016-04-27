@@ -60,6 +60,21 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             sendData(data);
         }
 
+
+        public unsafe void sendAveragedDataForDepth(ushort[] frame, int X ,int Y, int area)
+        {
+            double data = 0;
+            for (int i = -area; i <= area; i++)
+            {
+                for (int j = -area; j <= area; j++)
+                {
+                    data += shiburin(frame, X - 3 * area * i,Y - 3 * area * j);
+                }
+            }
+            data = data / Math.Pow((area)*2 + 1,2);
+            sendData(data);
+        }
+
         public void close()
         {
             client.Close();

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
+using System.Diagnostics;
 namespace Microsoft.Samples.Kinect.InfraredBasics
 {
     class readFromcppdata
@@ -16,8 +17,11 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private int frameWidth = 512;
         private int frameHeight = 424;
         private bool isRead = false;
+
         public readFromcppdata()
         {
+            Process.Start(@"C:\Users\mkuser\Documents\K4W2-Book-master\K4W2-Book-master\C++(Native)\05_Infrared\KinectV2-Infrared-01\Release\InfraRed_Depth.exe");
+
             try
             {
                 using (StreamReader sr = new StreamReader(@"V:\KinectIR\cplusplus\areadescripcioncplus.dat", Encoding.GetEncoding("Shift_JIS")))
@@ -103,6 +107,5 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             }
         }
 
-        
     }
 }

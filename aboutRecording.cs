@@ -39,7 +39,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 {
                     TimeStampFrag = false;
                     
-                    //tcpsender.sendLockedPoint(DepthGlobalArray, getLockPosition());
+                    tcpsender.sendAveragedDataForDepth(DepthGlobalArray, (int)(R1.X / 2 + R2.X/2), (int)(R1.Y/ 2 + R2.Y/2), 2);
 
                 }
                 targetPosition = getLockPosition();
@@ -230,7 +230,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private unsafe void writeToArrayPoint(ushort* ProcessData, Point location)
         {
             int leftX = 0, leftY = 0, rightX = 511, rightY = 423;
-            if (!areaReader.IsRead)
+            if (areaReader.IsRead)
             {
                 R1 = areaReader.BeginPoint;
                 R2 = areaReader.EndPoint;
@@ -302,24 +302,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 }
             }
 
-
-
-        }
-        private void writeColorFrameToFile(byte[] buffer)
-        {
-            int Height = 1920;
-            int Width = 1080;
-
-
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                writingColor.Write(buffer[i].ToString() + "\r\n");
-            }
-
-
-        }
-
-            
+        }    
 
     }
 }
