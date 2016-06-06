@@ -115,7 +115,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             {
                 return passUnix;
             }
-            pass = pass.Replace(@"V:\", @"/home/mkuser/");
+            pass = pass.Replace(@"V:\", @"/home/okubo/");
             pass = pass.Replace(@"\", @"/");
             return pass;
         }

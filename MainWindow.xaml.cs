@@ -102,7 +102,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 1299;
+        private int RECORD_SIZE = 5;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = false;
