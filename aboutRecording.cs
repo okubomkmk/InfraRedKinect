@@ -39,7 +39,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 {
                     TimeStampFrag = false;
                     
-                    tcpsender.sendAveragedDataForDepth(DepthGlobalArray, (int)(R1.X / 2 + R2.X/2), (int)(R1.Y/ 2 + R2.Y/2), 2);
+                    //tcpsender.sendAveragedDataForDepth(DepthGlobalArray, (int)(areaReader.BeginPoint.X/ 2 + areaReader.EndPoint.X/2), (int)(areaReader.BeginPoint.Y/ 2 + areaReader.EndPoint.Y/2), 2);
 
                 }
                 targetPosition = getLockPosition();

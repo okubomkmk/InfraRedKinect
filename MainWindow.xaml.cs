@@ -102,7 +102,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         /// <summary>
         /// Current status text to display
         /// </summary>
-        private int RECORD_SIZE = 2700;
+        private int RECORD_SIZE = 1299;
         private int counter = 0;
         private int writeDownedCounter = 0;
         private bool cursol_locked = false;
@@ -118,7 +118,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private bool FileNameStableFlag = false;
         private bool senderCatchException = false;
 
-        private int WaitForStartingRecord = 1;
+        private int WaitForStartingRecord = 3;
         private ushort[] measureDepthArray = new ushort[1];
         private ushort[] centerDepthArray = new ushort[1];
         private ushort[] measureIrArray = new ushort[1];
@@ -134,7 +134,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         FolderBrowserDialog fbd = new FolderBrowserDialog();
         private System.IO.StreamWriter FramesizeData;
         private readFromcppdata areaReader = new readFromcppdata();
-        private tcpSender tcpsender = new tcpSender();
+        //private tcpSender tcpsender = new tcpSender();
 
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.fbd.RootFolder = Environment.SpecialFolder.Desktop;
             //最初に選択するフォルダを指定する
             //RootFolder以下にあるフォルダである必要がある
-            this.fbd.SelectedPath = @"V:\KinectIR";
+            this.fbd.SelectedPath = @"V:\KinectIR\newversion";
             //ユーザーが新しいフォルダを作成できるようにする
             //デフォルトでTrue
             this.fbd.ShowNewFolderButton = true;
@@ -287,8 +287,8 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
                 this.kinectSensor.Close();
                 this.kinectSensor = null;
             }
-               tcpsender.sendEndCode();
-            tcpsender.close();
+               //tcpsender.sendEndCode();
+            //tcpsender.close();
 
 
         }

@@ -20,7 +20,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
         public readFromcppdata()
         {
-            Process.Start(@"C:\Users\mkuser\Documents\K4W2-Book-master\K4W2-Book-master\C++(Native)\05_Infrared\KinectV2-Infrared-01\Release\InfraRed_Depth.exe");
+            //Process.Start(@"C:\Users\mkuser\Documents\K4W2-Book-master\K4W2-Book-master\C++(Native)\05_Infrared\KinectV2-Infrared-01\Release\InfraRed_Depth.exe");
 
             try
             {
