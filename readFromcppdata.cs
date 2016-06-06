@@ -17,14 +17,17 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
         private int frameWidth = 512;
         private int frameHeight = 424;
         private bool isRead = false;
-
+        string curDir = System.IO.Directory.GetCurrentDirectory();
+        
         public readFromcppdata()
         {
-            //Process.Start(@"C:\Users\mkuser\Documents\K4W2-Book-master\K4W2-Book-master\C++(Native)\05_Infrared\KinectV2-Infrared-01\Release\InfraRed_Depth.exe");
+
+            Process.Start(@"V:\VSProjects\InfraredBasics-WPF\selectROI\InfraRed_Depth.exe");
 
             try
             {
-                using (StreamReader sr = new StreamReader(@"V:\KinectIR\cplusplus\areadescripcioncplus.dat", Encoding.GetEncoding("Shift_JIS")))
+                
+                using (StreamReader sr = new StreamReader(curDir +  @"\areadescripcioncplus.dat", Encoding.GetEncoding("Shift_JIS")))
                 {
                     location = sr.ReadToEnd();
                     separeted = location.Split(' ');
