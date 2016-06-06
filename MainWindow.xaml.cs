@@ -188,7 +188,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
 
             // initialize the components (controls) of the window
             this.InitializeComponent();
-            this.ButtonWriteDown.IsEnabled = false;
+            this.ButtonWriteDown.IsEnabled = true;
 
             this.ValueLabels = new System.Windows.Controls.Label[9];
 
@@ -214,7 +214,7 @@ namespace Microsoft.Samples.Kinect.InfraredBasics
             this.fbd.RootFolder = Environment.SpecialFolder.Desktop;
             //最初に選択するフォルダを指定する
             //RootFolder以下にあるフォルダである必要がある
-            this.fbd.SelectedPath = @"V:\KinectIR\newversion";
+            this.fbd.SelectedPath = @"V:\KinectPrograms\networkaccount";
             //ユーザーが新しいフォルダを作成できるようにする
             //デフォルトでTrue
             this.fbd.ShowNewFolderButton = true;
